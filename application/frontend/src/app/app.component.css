@@ -1,0 +1,15 @@
+.container {
+    margin-top: 5em;
+    background-color: lightgray;
+    border-radius: 1em;
+    padding: 1em;
+    text-align: center;
+}
+
+.list-group-item {
+    text-align: left;
+}
+
+.add-item {
+    margin-top: 1em;
+}

@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="username">
+    <input type="text" class="form-control" placeholder="username" [formControl]="username">
+  </div>
+  <div class="todo-list">
+    <div class="items">
+      <span class="header"><h1>Things to do</h1></span>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let item of items">{{item.what}}</li>
+      </ul>
+    </div>
+    <div class="add-item">
+      <span class="header"><h2>Add a new thing to do</h2></span>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="What to do?" aria-describedby="add-button" [formControl]="whatToDo">
+        <div class="input-group-append">
+          <button class="btn btn-primary" id="add-button" (click)="addItem()">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
