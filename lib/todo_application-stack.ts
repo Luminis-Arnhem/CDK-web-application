@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as s3deploy from '@aws-cdk/aws-s3-deployment';
+import * as dynamodb from '@aws-cdk/aws-dynamodb';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -18,5 +19,17 @@ export class TodoApplicationStack extends cdk.Stack {
       destinationBucket: frontendBucket
     });
     bucketDeployment.node.addDependency(frontendBucket);
+
+    const todoItemsTable = new dynamodb.Table(this, 'TodoApplicationTodoItemsTable', {
+      partitionKey: {
+        name: 'who',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'creationDate',
+        type: dynamodb.AttributeType.STRING
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
   }
 }
