@@ -8,7 +8,9 @@ export class TodoApplicationStack extends cdk.Stack {
 
     const frontendBucket = new s3.Bucket(this, 'TodoApplicationFrontend', {
       websiteIndexDocument: 'index.html',
-      publicReadAccess: true
+      publicReadAccess: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true
     });
 
     const bucketDeployment = new s3deploy.BucketDeployment(this, 'DeployTodoApplicationFrontend', {
