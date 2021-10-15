@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "build",
+    "target": "es2017",
+    "noImplicitAny": false,
+    "allowJs": true,
+    "types": ["node"]
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}

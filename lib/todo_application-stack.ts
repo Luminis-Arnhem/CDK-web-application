@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import * as lambda from '@aws-cdk/aws-lambda';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -30,6 +31,11 @@ export class TodoApplicationStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING
       },
       removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+
+    const sharedCodeLayer = new lambda.LayerVersion(this, 'TodoApplicationSharedCode', {
+      code: lambda.Code.fromAsset('application/functions/shared-code'),
+      compatibleRuntimes: [lambda.Runtime.NODEJS_14_X]
     });
   }
 }
