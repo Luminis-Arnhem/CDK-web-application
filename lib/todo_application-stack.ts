@@ -3,6 +3,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as lambda from '@aws-cdk/aws-lambda';
+import * as apigateway from '@aws-cdk/aws-apigateway';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -65,5 +66,17 @@ export class TodoApplicationStack extends cdk.Stack {
       ]
     })
     todoItemsTable.grantReadData(getItemsLambda)
+
+    const apiGateway = new apigateway.RestApi(this, 'TodoApplicationApiGateway', {
+      restApiName: 'TodoApplicationApi'
+    })
+
+    const itemResource = apiGateway.root.addResource('item')
+    itemResource.addCorsPreflight({
+      allowOrigins: [ '*' ],
+      allowMethods: [ 'GET', 'PUT' ]
+    });
+    itemResource.addMethod('PUT', new apigateway.LambdaIntegration(addItemLambda), {})
+    itemResource.addMethod('GET', new apigateway.LambdaIntegration(getItemsLambda), {})
   }
 }
