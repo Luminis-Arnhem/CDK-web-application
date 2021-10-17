@@ -4,6 +4,7 @@ import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigateway from '@aws-cdk/aws-apigateway';
+import * as customResources from '@aws-cdk/custom-resources';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -78,5 +79,31 @@ export class TodoApplicationStack extends cdk.Stack {
     });
     itemResource.addMethod('PUT', new apigateway.LambdaIntegration(addItemLambda), {})
     itemResource.addMethod('GET', new apigateway.LambdaIntegration(getItemsLambda), {})
+
+    const frontendConfig = {
+      itemsApi: apiGateway.url,
+      lastChanged: new Date().toUTCString()
+    };
+
+    const dataString = `window.AWSConfig = ${JSON.stringify(frontendConfig, null, 4)};`;
+
+    const putUpdate = {
+      service: 'S3',
+      action: 'putObject',
+      parameters: {
+        Body: dataString,
+        Bucket: `${frontendBucket.bucketName}`,
+        Key: 'config.js',
+      },
+      physicalResourceId: customResources.PhysicalResourceId.of(`${frontendBucket.bucketName}`)
+    };
+
+    const s3Upload = new customResources.AwsCustomResource(this, 'TodoApplicationSetConfigJS', {
+      policy: customResources.AwsCustomResourcePolicy.fromSdkCalls({resources: customResources.AwsCustomResourcePolicy.ANY_RESOURCE}),
+      onUpdate: putUpdate,
+      onCreate: putUpdate,
+    });
+    s3Upload.node.addDependency(bucketDeployment);
+    s3Upload.node.addDependency(apiGateway);
   }
 }

@@ -21,7 +21,7 @@ export class TodoItemsService {
   }
 
   addItem(username: String, item: TodoItem): Observable<any> {
-    return this.http.post(ConfigService.get().itemsApi + 'item?user=' + username, item, {
+    return this.http.put(ConfigService.get().itemsApi + 'item?user=' + username, item, {
       headers: {}
     })
   }

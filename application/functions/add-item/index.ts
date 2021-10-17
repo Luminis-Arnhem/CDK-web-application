@@ -1,5 +1,5 @@
 
-import { TodoItem } from '/opt/nodejs/todoItem';
+import { TodoItem } from '/opt/nodejs/todoitem';
 
 const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
