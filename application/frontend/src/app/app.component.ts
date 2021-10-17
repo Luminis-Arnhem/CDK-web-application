@@ -35,7 +35,7 @@ export class AppComponent {
     let newItem = new TodoItem()
     newItem.what = this.whatToDo.value
     this.whatToDo.setValue('')
-    this.todoItemsService.addItem(newItem).subscribe(result => {
+    this.todoItemsService.addItem(this.username.value, newItem).subscribe(result => {
       this.getItems(this.username.value)
     })
   }

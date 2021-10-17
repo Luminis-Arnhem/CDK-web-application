@@ -1,0 +1,15 @@
+{
+  "name": "GetItemsFunction",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "aws-sdk": "2.886.0",
+    "@types/node": "10.17.27",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  }
+}

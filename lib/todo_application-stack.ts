@@ -37,5 +37,33 @@ export class TodoApplicationStack extends cdk.Stack {
       code: lambda.Code.fromAsset('application/functions/shared-code'),
       compatibleRuntimes: [lambda.Runtime.NODEJS_14_X]
     });
+
+    const addItemLambda = new lambda.Function(this, 'TodoApplicationAddItemFunction', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('application/functions/add-item', {exclude: ["node_modules", "*.json"]}),
+      environment: {
+        TODO_ITEMS_TABLE_NAME: todoItemsTable.tableName,
+        ALLOWED_ORIGINS: '*'
+      },
+      layers: [
+        sharedCodeLayer
+      ]
+    })
+    todoItemsTable.grantReadWriteData(addItemLambda)
+
+    const getItemsLambda = new lambda.Function(this, 'TodoApplicationGetItemsFunction', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('application/functions/get-items', {exclude: ["node_modules", "*.json"]}),
+      environment: {
+        TODO_ITEMS_TABLE_NAME: todoItemsTable.tableName,
+        ALLOWED_ORIGINS: '*'
+      },
+      layers: [
+        sharedCodeLayer
+      ]
+    })
+    todoItemsTable.grantReadData(getItemsLambda)
   }
 }

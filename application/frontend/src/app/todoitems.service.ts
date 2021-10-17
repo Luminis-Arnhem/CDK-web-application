@@ -11,7 +11,7 @@ export class TodoItemsService {
   constructor(private http: HttpClient) {}
 
   getItems(username: String): Observable<TodoItem[]> {
-    return this.http.get<TodoItem[]>(ConfigService.get().itemsApi + 'item/' + username, {
+    return this.http.get<TodoItem[]>(ConfigService.get().itemsApi + 'item?user=' + username, {
         headers: {}
     }).pipe(
       map((response: any) => {
@@ -20,8 +20,8 @@ export class TodoItemsService {
     )
   }
 
-  addItem(item: TodoItem): Observable<any> {
-    return this.http.post(ConfigService.get().itemsApi + 'item', item, {
+  addItem(username: String, item: TodoItem): Observable<any> {
+    return this.http.post(ConfigService.get().itemsApi + 'item?user=' + username, item, {
       headers: {}
     })
   }
