@@ -5,10 +5,28 @@ import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigateway from '@aws-cdk/aws-apigateway';
 import * as customResources from '@aws-cdk/custom-resources';
+import * as route53 from '@aws-cdk/aws-route53';
+import * as acm from '@aws-cdk/aws-certificatemanager';
+import * as cloudfront from '@aws-cdk/aws-cloudfront';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const hostedZone = route53.HostedZone.fromLookup(this, 'TodoApplicationHostedZone', {
+      domainName: 'tomhanekamp.com'
+    });
+
+    const frontendCertificate = new acm.DnsValidatedCertificate(this, 'TodoApplicationFrontendCertificate', {
+      domainName: 'todoapplication.tomhanekamp.com',
+      hostedZone: hostedZone,
+      region: 'us-east-1'
+    });
+
+    const apiCertificate = new acm.DnsValidatedCertificate(this, 'TodoApplicationApiCertificate', {
+      domainName: 'todoapplication-api.tomhanekamp.com',
+      hostedZone: hostedZone
+    });
 
     const frontendBucket = new s3.Bucket(this, 'TodoApplicationFrontend', {
       websiteIndexDocument: 'index.html',
@@ -22,6 +40,25 @@ export class TodoApplicationStack extends cdk.Stack {
       destinationBucket: frontendBucket
     });
     bucketDeployment.node.addDependency(frontendBucket);
+
+    const distribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
+      originConfigs: [
+        {
+          s3OriginSource: {
+            s3BucketSource: frontendBucket
+          },
+          behaviors : [ { isDefaultBehavior: true } ],
+        }
+      ],
+      viewerCertificate: {
+        aliases: [ 'todoapplication.tomhanekamp.com' ],
+        props: {
+          acmCertificateArn: frontendCertificate.certificateArn,
+          sslSupportMethod: "sni-only",
+          minimumProtocolVersion: "TLSv1.2_2021"
+        }
+      }
+    });
 
     const todoItemsTable = new dynamodb.Table(this, 'TodoApplicationTodoItemsTable', {
       partitionKey: {
