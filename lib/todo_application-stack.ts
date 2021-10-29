@@ -8,6 +8,7 @@ import * as customResources from '@aws-cdk/custom-resources';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
+import * as route53Targets from '@aws-cdk/aws-route53-targets';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -106,7 +107,12 @@ export class TodoApplicationStack extends cdk.Stack {
     todoItemsTable.grantReadData(getItemsLambda)
 
     const apiGateway = new apigateway.RestApi(this, 'TodoApplicationApiGateway', {
-      restApiName: 'TodoApplicationApi'
+      restApiName: 'TodoApplicationApi',
+      domainName: {
+        domainName: 'todoapplication-api.tomhanekamp.com',
+        certificate: apiCertificate,
+        securityPolicy: apigateway.SecurityPolicy.TLS_1_2
+      }
     })
 
     const itemResource = apiGateway.root.addResource('item')
@@ -142,5 +148,17 @@ export class TodoApplicationStack extends cdk.Stack {
     });
     s3Upload.node.addDependency(bucketDeployment);
     s3Upload.node.addDependency(apiGateway);
+
+    const websiteCName = new route53.CnameRecord(this, 'TodoApplicationWebsiteCName', {
+      zone: hostedZone,
+      recordName: 'todoapplication.tomhanekamp.com',
+      domainName: distribution.distributionDomainName
+    });
+
+    const apiARecord = new route53.ARecord( this, "TodoApplicationAPIRecord", {
+      recordName:  'todoapplication-api.tomhanekamp.com',
+      zone: hostedZone,
+      target: route53.RecordTarget.fromAlias(new route53Targets.ApiGateway(apiGateway))
+    });
   }
 }
