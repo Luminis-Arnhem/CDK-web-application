@@ -24,7 +24,7 @@ export class TodoItemsService {
   }
 
   addItem(item: TodoItem): Observable<any> {
-    return this.http.post(ConfigService.get().itemsApi + 'item', item, {
+    return this.http.put(ConfigService.get().itemsApi + 'item', item, {
       headers: {
         'Authorization': `${this.cognitoService.getIdToken()}`
       }
