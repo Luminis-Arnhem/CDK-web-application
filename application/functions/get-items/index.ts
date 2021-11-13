@@ -8,7 +8,7 @@ const todoItemsTable: string = process.env.TODO_ITEMS_TABLE_NAME as string;
 const allowedOrigins: string = process.env.ALLOWED_ORIGINS as string;
 
 export async function handler(event: any, context: any): Promise<any> {
-    if (event.queryStringParameters?.user) {
+    if (event.requestContext?.authorizer?.principalId) {
         return dynamodb.query({
             TableName : todoItemsTable,
             KeyConditionExpression: "#who = :who",
@@ -16,7 +16,7 @@ export async function handler(event: any, context: any): Promise<any> {
                 "#who": "who"
             },
             ExpressionAttributeValues: {
-                ":who": event.queryStringParameters.user
+                ":who": event.requestContext.authorizer.principalId
             }
         }).promise()
         .then((items: TodoItem[]) => {

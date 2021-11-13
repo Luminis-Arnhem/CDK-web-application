@@ -8,11 +8,11 @@ const todoItemsTable: string = process.env.TODO_ITEMS_TABLE_NAME as string;
 const allowedOrigins: string = process.env.ALLOWED_ORIGINS as string;
 
 export async function handler(event: any, context: any): Promise<any> {
-    if (event.queryStringParameters?.user) {
+    if (event.requestContext?.authorizer?.principalId) {
         var requestBody = JSON.parse(event.body);
         var todoItem = new TodoItem()
         todoItem.what = requestBody.what
-        todoItem.who = event.queryStringParameters.user
+        todoItem.who = event.requestContext.authorizer.principalId
         todoItem.creationDate = new Date().toUTCString()
         return dynamodb.put({
             TableName: todoItemsTable,
