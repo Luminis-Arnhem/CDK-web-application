@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CognitoService } from './cognito.service';
 import { ConfigService } from './config.service';
 import { TodoItem } from './todoitem.model';
 import { map } from 'rxjs/operators';
@@ -8,11 +9,13 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class TodoItemsService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cognitoService: CognitoService) {}
 
-  getItems(username: String): Observable<TodoItem[]> {
-    return this.http.get<TodoItem[]>(ConfigService.get().itemsApi + 'item?user=' + username, {
-        headers: {}
+  getItems(): Observable<TodoItem[]> {
+    return this.http.get<TodoItem[]>(ConfigService.get().itemsApi + 'item', {
+        headers: {
+            'Authorization': `${this.cognitoService.getIdToken()}`
+        }
     }).pipe(
       map((response: any) => {
         return response.Items
@@ -20,9 +23,11 @@ export class TodoItemsService {
     )
   }
 
-  addItem(username: String, item: TodoItem): Observable<any> {
-    return this.http.put(ConfigService.get().itemsApi + 'item?user=' + username, item, {
-      headers: {}
+  addItem(item: TodoItem): Observable<any> {
+    return this.http.post(ConfigService.get().itemsApi + 'item', item, {
+      headers: {
+        'Authorization': `${this.cognitoService.getIdToken()}`
+      }
     })
   }
 }

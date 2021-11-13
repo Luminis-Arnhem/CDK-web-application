@@ -1,8 +1,8 @@
 <div class="container">
-  <div class="username">
-    <input type="text" class="form-control" placeholder="username" [formControl]="username">
+  <div class="login">
+    <button class="btn btn-secondary" *ngIf="!isLoggedIn()" (click)="login()">Login</button>
   </div>
-  <div class="todo-list">
+  <div class="todo-list" *ngIf="isLoggedIn()">
     <div class="items">
       <span class="header"><h1>Things to do</h1></span>
       <ul class="list-group">
@@ -17,6 +17,9 @@
           <button class="btn btn-primary" id="add-button" (click)="addItem()">Add</button>
         </div>
       </div>
+    </div>
+    <div class="logout">
+      <button class="btn btn-secondary" (click)="logout()">Logout</button>
     </div>
   </div>
 </div>

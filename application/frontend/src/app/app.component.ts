@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CognitoService } from './cognito.service';
 import { TodoItem } from './todoitem.model';
 import { TodoItemsService } from './todoitems.service';
 import { FormControl } from '@angular/forms';
@@ -14,29 +15,48 @@ export class AppComponent {
   title = 'todo-application';
   items: TodoItem[] = [];
 
-  username = new FormControl('');
   whatToDo = new FormControl('');
 
-  constructor(private todoItemsService: TodoItemsService) { }
+  constructor(private cognitoService: CognitoService, private route: ActivatedRoute, private todoItemsService: TodoItemsService) { }
 
   ngOnInit() {
-    this.username.valueChanges.subscribe(username => {
-      this.getItems(username)
+    if (!this.cognitoService.isLoggedIn()) {
+      this.route.queryParamMap.subscribe((paramsMap: any) => {
+        if (paramsMap?.params?.code) {
+          this.cognitoService.retrieveIdToken(paramsMap.params.code).subscribe(_ => {
+            this.getItems()
+          })
+        }
+      })
+    } else {
+      this.getItems()
+    }
+  }
+
+  getItems() {
+    this.todoItemsService.getItems().subscribe(items => {
+      this.items = items
     })
   }
 
-  getItems(username: String) {
-    this.todoItemsService.getItems(username).subscribe(items => {
-      this.items = items
-    })
+  login() {
+    this.cognitoService.login();
+  }
+
+  logout() {
+    this.cognitoService.logout();
+  }
+
+  isLoggedIn() {
+    return this.cognitoService.isLoggedIn();
   }
 
   addItem() {
     let newItem = new TodoItem()
     newItem.what = this.whatToDo.value
     this.whatToDo.setValue('')
-    this.todoItemsService.addItem(this.username.value, newItem).subscribe(result => {
-      this.getItems(this.username.value)
+    this.todoItemsService.addItem(newItem).subscribe(result => {
+      this.getItems()
     })
   }
 }
