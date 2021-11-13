@@ -10,6 +10,9 @@
     "aws-sdk": "2.886.0",
     "@types/node": "10.17.27",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "jsonwebtoken": "8.5.1",
+    "jwk-to-pem": "2.0.5",
+    "request": "2.88.2"
   }
 }

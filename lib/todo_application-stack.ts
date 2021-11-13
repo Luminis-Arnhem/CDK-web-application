@@ -141,13 +141,35 @@ export class TodoApplicationStack extends cdk.Stack {
       }
     })
 
+    const authorizerLambda = new lambda.Function(this, 'TodoApplicationAuthorizerFunction', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('application/functions/authorizer', {exclude: ["node_modules", "*.json"]}),
+      environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        REGION: 'eu-west-1'
+      },
+      layers: [
+        sharedCodeLayer
+      ]
+    })
+    authorizerLambda.node.addDependency(userPool)
+
+    const authorizer = new apigateway.TokenAuthorizer(this, 'TodoApplicationAuthorizer', {
+      handler: authorizerLambda
+    })
+
     const itemResource = apiGateway.root.addResource('item')
     itemResource.addCorsPreflight({
       allowOrigins: [ '*' ],
       allowMethods: [ 'GET', 'PUT' ]
     });
-    itemResource.addMethod('PUT', new apigateway.LambdaIntegration(addItemLambda), {})
-    itemResource.addMethod('GET', new apigateway.LambdaIntegration(getItemsLambda), {})
+    itemResource.addMethod('PUT', new apigateway.LambdaIntegration(addItemLambda), {
+      authorizer: authorizer
+    })
+    itemResource.addMethod('GET', new apigateway.LambdaIntegration(getItemsLambda), {
+      authorizer: authorizer
+    })
 
     const frontendConfig = {
       itemsApi: apiGateway.url,

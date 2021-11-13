@@ -1,0 +1,11 @@
+{
+  "name": "AuthorizerFunction",
+  "version": "1.0.0",
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {
+    "jsonwebtoken": "8.5.1",
+    "jwk-to-pem": "2.0.5",
+    "request": "2.88.2"
+  }
+}
