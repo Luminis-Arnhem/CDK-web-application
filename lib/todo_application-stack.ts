@@ -9,6 +9,7 @@ import * as route53 from '@aws-cdk/aws-route53';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as route53Targets from '@aws-cdk/aws-route53-targets';
+import * as cognito from '@aws-cdk/aws-cognito';
 import { ApiGateway } from '@aws-cdk/aws-route53-targets';
 
 export class TodoApplicationStack extends cdk.Stack {
@@ -72,6 +73,30 @@ export class TodoApplicationStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING
       },
       removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+
+    const userPool = new cognito.UserPool(this, "TodoApplicationUserPool", {
+      selfSignUpEnabled: true,
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+
+    const userPoolClient = userPool.addClient("TodoApplicationUserPoolClient", {
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+        },
+        scopes: [ cognito.OAuthScope.OPENID ],
+        callbackUrls: [ `https://todoapplication.tomhanekamp.com/` ],
+        logoutUrls: [ `https://todoapplication.tomhanekamp.com/` ]
+      }
+    });
+
+    userPool.addDomain("TodoApplicationCognitoDomain", {
+      cognitoDomain: {
+        domainPrefix: "todo-application",
+      },
     });
 
     const sharedCodeLayer = new lambda.LayerVersion(this, 'TodoApplicationSharedCode', {
