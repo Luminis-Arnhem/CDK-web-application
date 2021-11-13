@@ -172,7 +172,11 @@ export class TodoApplicationStack extends cdk.Stack {
     })
 
     const frontendConfig = {
-      itemsApi: apiGateway.url,
+      serverUrl: `https://todoapplication.tomhanekamp.com/`,
+      region: 'eu-west-1',
+      cognitoClientId: userPoolClient.userPoolClientId,
+      cognitoDomain: 'todo-application',
+      itemsApi: 'https://todoapplication-api.tomhanekamp.com/',
       lastChanged: new Date().toUTCString()
     };
 
@@ -196,6 +200,7 @@ export class TodoApplicationStack extends cdk.Stack {
     });
     s3Upload.node.addDependency(bucketDeployment);
     s3Upload.node.addDependency(apiGateway);
+    s3Upload.node.addDependency(userPoolClient);
 
     const websiteARecord = new route53.ARecord( this, "TodoApplicationWebsiteRecord", {
       recordName:  'todoapplication.tomhanekamp.com',
