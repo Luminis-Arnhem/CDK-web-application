@@ -23,11 +23,11 @@
   "dependencies": {
     "@aws-cdk/aws-apigateway": "1.129.0",
     "@aws-cdk/aws-certificatemanager": "1.129.0",
-    "@aws-cdk/aws-cloudfront": "^1.129.0",
+    "@aws-cdk/aws-cloudfront": "1.129.0",
     "@aws-cdk/aws-dynamodb": "1.129.0",
     "@aws-cdk/aws-iam": "1.129.0",
     "@aws-cdk/aws-route53": "1.129.0",
-    "@aws-cdk/aws-route53-targets": "^1.129.0",
+    "@aws-cdk/aws-route53-targets": "1.129.0",
     "@aws-cdk/aws-s3": "1.129.0",
     "@aws-cdk/aws-s3-deployment": "1.129.0",
     "@aws-cdk/core": "1.129.0",

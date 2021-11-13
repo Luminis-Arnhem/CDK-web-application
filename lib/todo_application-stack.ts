@@ -9,6 +9,7 @@ import * as route53 from '@aws-cdk/aws-route53';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as route53Targets from '@aws-cdk/aws-route53-targets';
+import { ApiGateway } from '@aws-cdk/aws-route53-targets';
 
 export class TodoApplicationStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -149,10 +150,10 @@ export class TodoApplicationStack extends cdk.Stack {
     s3Upload.node.addDependency(bucketDeployment);
     s3Upload.node.addDependency(apiGateway);
 
-    const websiteCName = new route53.CnameRecord(this, 'TodoApplicationWebsiteCName', {
+    const websiteARecord = new route53.ARecord( this, "TodoApplicationWebsiteRecord", {
+      recordName:  'todoapplication.tomhanekamp.com',
       zone: hostedZone,
-      recordName: 'todoapplication.tomhanekamp.com',
-      domainName: distribution.distributionDomainName
+      target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(distribution))
     });
 
     const apiARecord = new route53.ARecord( this, "TodoApplicationAPIRecord", {
