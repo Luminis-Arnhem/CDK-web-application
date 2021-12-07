@@ -141,23 +141,9 @@ export class TodoApplicationStack extends cdk.Stack {
       }
     })
 
-    const authorizerLambda = new lambda.Function(this, 'TodoApplicationAuthorizerFunction', {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('application/functions/authorizer', {exclude: ["node_modules", "*.json"]}),
-      environment: {
-        USER_POOL_ID: userPool.userPoolId,
-        REGION: 'eu-west-1'
-      },
-      layers: [
-        sharedCodeLayer
-      ]
-    })
-    authorizerLambda.node.addDependency(userPool)
-
-    const authorizer = new apigateway.TokenAuthorizer(this, 'TodoApplicationAuthorizer', {
-      handler: authorizerLambda
-    })
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'TodoApplicationAuthorizer', {
+      cognitoUserPools: [userPool]
+    });
 
     const itemResource = apiGateway.root.addResource('item')
     itemResource.addCorsPreflight({

@@ -27,7 +27,7 @@ export class CognitoService {
     return this.http.post(`https://${ConfigService.get().cognitoDomain}.auth.${ConfigService.get().region}.amazoncognito.com/oauth2/token`, body).pipe(
       tap(
         data => {
-          this.idToken = data.access_token;
+          this.idToken = data.id_token;
           localStorage.setItem('id-token', this.idToken);
         }
       )
